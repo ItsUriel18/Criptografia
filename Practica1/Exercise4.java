@@ -1,6 +1,6 @@
 import java.math.BigInteger;
 
-public class Excercise4 {
+public class Exercise4 {
 
     public static void main(String[] args) {
         // Parámetros de la curva 
