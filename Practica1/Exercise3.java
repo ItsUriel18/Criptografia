@@ -6,8 +6,8 @@ public class Exercise3 {
 
     public static void main(String[] args) {
         // Ejemplo con valores pequeños para visualizar
-        BigInteger p = BigInteger.valueOf(251); 
-        BigInteger a = BigInteger.valueOf(0);
+        BigInteger p = BigInteger.valueOf(1031); 
+        BigInteger a = BigInteger.valueOf(2);
         BigInteger b = BigInteger.valueOf(1);
 
         System.out.println("Buscando puntos para: y^2 = x^3 + " + a + "x + " + b + " (mod " + p + ")");

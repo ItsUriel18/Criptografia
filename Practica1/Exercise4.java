@@ -4,12 +4,12 @@ public class Exercise4 {
 
     public static void main(String[] args) {
         // Parámetros de la curva 
-        BigInteger p = BigInteger.valueOf(13);
+        BigInteger p = BigInteger.valueOf(1031);
         BigInteger a = BigInteger.valueOf(0);
         
         // Puntos
-        BigInteger[] P = {BigInteger.valueOf(0), BigInteger.valueOf(1), BigInteger.valueOf(1)}; 
-        BigInteger[] Q = {BigInteger.valueOf(0), BigInteger.valueOf(12), BigInteger.valueOf(1)};
+        BigInteger[] P = {BigInteger.valueOf(8), BigInteger.valueOf(23), BigInteger.valueOf(1)}; 
+        BigInteger[] Q = {BigInteger.valueOf(8), BigInteger.valueOf(1008), BigInteger.valueOf(1)};
 
         BigInteger[] R = sumarPuntos(P, Q, a, p);
 

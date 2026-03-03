@@ -3,9 +3,9 @@ import java.math.BigInteger;
 public class Exercise5 {
 
     public static void main(String[] args) {
-        BigInteger p = BigInteger.valueOf(11);
-        BigInteger a = BigInteger.valueOf(1);
-        BigInteger[] P = {BigInteger.valueOf(10), BigInteger.valueOf(0), BigInteger.valueOf(1)};
+        BigInteger p = BigInteger.valueOf(1031);
+        BigInteger a = BigInteger.valueOf(2);
+        BigInteger[] P = {BigInteger.valueOf(8), BigInteger.valueOf(23), BigInteger.valueOf(1)};
 
         BigInteger[] R = duplicarPunto(P, a, p);
 
