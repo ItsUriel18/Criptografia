@@ -1,0 +1,12 @@
+#ignorar archivos ejecutables
+
+*.exe
+*.out
+*.o
+
+#ignorar carpetas de compilacion
+
+/build/
+/bin/
+/debug/
+/relase/
