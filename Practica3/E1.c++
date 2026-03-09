@@ -6,17 +6,18 @@ using namespace std;
 
 int k;
 int P;
+string k_bin;
 
 struct Punto{
     long long x;
     long long y;
-    long long z = 1;
+    long long z;
 }Punto1, Punto2;
 
 void ValidarPunto(Punto &p);
 string transformarABinario(int n);
-void LTR(const string &k_binario);
-void RTL(const string &k_binario);
+void LTR(string &k_binario);
+void RTL(string &k_binario);
 // Prototipos de las funciones que implementaremos después
 Punto sumarPuntos(Punto A, Punto B);
 Punto doblarPunto(Punto A);
@@ -28,17 +29,14 @@ int main(){
     ValidarPunto(Punto1);
     
     cout<<"Ingrese el valor de k "; cin>>k;
-    string k_binario = transformarABinario(k);
+    k_bin = transformarABinario(k);
     cout<<"Ingrese el valor de P "; cin>>P;
-
-    LTR(k_binario);
-
 
     cout << "-----------------------------------" << endl;
     cout<<"El punto ingresado es: ("<<Punto1.x<<","<<Punto1.y<<","<<Punto1.z<<")"<<endl;
     cout<<"El valor de k es: "<<k<< " el valor de P es: "<<P<<endl; 
-    cout<<"El valor de k en binario (Big-Endian): "<<k_binario<<endl;
-
+    RTL(k_bin);
+    LTR(k_bin);
     return 0;
 }
 void ValidarPunto(Punto &p) {
@@ -63,23 +61,22 @@ string transformarABinario(int n) {
         }
         n = n / 2; // División entera
     }
-    reverse(binario.begin(), binario.end());
     return binario;
 }
 
-void LTR(const string &k_binario){
-
+void LTR(string &k_binario){
+    reverse(k_binario.begin(), k_binario.end());
+    cout << "Valor de k en binario (Little-Endian): " << k_binario << endl;
 }
-void RTL(const string &k_binario){
 
+void RTL(string &k_binario){
+    cout << "Valor de k en binario (Big-Endian): " << k_binario << endl;
 }
 
 Punto sumarPuntos(Punto A, Punto B) {
-    
     return A; 
 }
 
 Punto doblarPunto(Punto A) {
-   
     return A;
 }
