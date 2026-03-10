@@ -1,7 +1,7 @@
 import java.math.BigInteger;
 import java.util.Scanner;
 
-public class E2 {
+public class ECDH {
     static class Punto {
         BigInteger x, y, z;
         public static final Punto INFINITO = new Punto(BigInteger.ZERO, BigInteger.ONE, BigInteger.ZERO);
@@ -20,7 +20,7 @@ public class E2 {
     }
 
     // Parámetros de la curva: y^2 = x^3 + ax + b (mod p)
-    private static BigInteger p, a;
+    private static BigInteger p, a, b;
 
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
@@ -28,41 +28,53 @@ public class E2 {
         System.out.println("--- Parámetros Globales (ECDH) ---");
         System.out.print("Ingrese p: "); p = new BigInteger(sc.next());
         System.out.print("Ingrese a: "); a = new BigInteger(sc.next());
-        //System.out.print("Ingrese b: "); b = new BigInteger(sc.next());
+        System.out.print("Ingrese b: "); b = new BigInteger(sc.next());
 
         System.out.print("Ingrese Gx: "); BigInteger gx = new BigInteger(sc.next());
         System.out.print("Ingrese Gy: "); BigInteger gy = new BigInteger(sc.next());
         Punto G = new Punto(gx, gy, BigInteger.ONE);
+        
+        if (!estaEnCurva(G)) {
+            System.out.println("\n[ERROR] El punto G no pertenece a la curva definida.");
+            System.out.println("Verifique p, a, b y las coordenadas de G.");
+            sc.close();
+            return; // Detiene el programa si el punto es inválido
+        }
 
-        // Pasos 3 y 4: Elección de exponentes aleatorios y cálculo de llaves públicas
-    // --- CAMBIO AQUÍ: Captura manual de claves privadas ---
+        System.out.println("\n[OK] El punto G es válido para esta curva.");
+
         System.out.print("\nAlice, ingrese su clave privada (kA): ");
         BigInteger kA = new BigInteger(sc.next());
         
-        System.out.print("Bob, ingrese su clave privada (kB): ");
-        BigInteger kB = new BigInteger(sc.next());
-
         Punto A = RTL(G, kA); // Alice calcula A = kA * G
-        Punto B = RTL(G, kB); // Bob calcula B = kB * G
-
         System.out.println("Alice envía A a Bob: " + A);
-        System.out.println("Bob envía B a Alice: " + B);
 
-        // Pasos 5 y 6: Cálculo del secreto compartido
-        Punto secretoAlice = RTL(B, kA); // kA * B
-        Punto secretoBob = RTL(A, kB);   // kB * A
+        System.out.print("\nBob, ingrese la coordenada x de B: ");
+        BigInteger Bx = new BigInteger(sc.next());
+        System.out.print("Ingrese la coordenada y de B: ");
+        BigInteger By = new BigInteger(sc.next());
+        Punto B = new Punto(Bx, By, BigInteger.ONE);
+
+        Punto secretoBob = RTL(B, kA);   // kA * B
 
         System.out.println("\n----------------------");
-        System.out.println("Secreto calculado por Alice: " + secretoAlice);
         System.out.println("Secreto calculado por Bob:   " + secretoBob);
-
-        // Paso 7: Verificación de igualdad
-        if (secretoAlice.x.equals(secretoBob.x) && secretoAlice.y.equals(secretoBob.y)) {
-            System.out.println("Los secretos coinciden.");
-        } else {
-            System.out.println("Los secretos no coinciden.");
-        }
         sc.close();
+    }
+
+    public static boolean estaEnCurva(Punto P) {
+    if (P.z.equals(BigInteger.ZERO)) return true; // El punto al infinito siempre "está"
+    
+    // Lado izquierdo: y^2 mod p
+    BigInteger izq = P.y.pow(2).mod(p);
+    
+    // Lado derecho: (x^3 + ax + b) mod p
+    BigInteger der = P.x.pow(3)
+                        .add(a.multiply(P.x))
+                        .add(b)
+                        .mod(p);
+                        
+    return izq.equals(der);
     }
 
     // --- ALGORITMO 1: Right-to-Left ---
@@ -80,6 +92,8 @@ public class E2 {
         }
         return Q;
     }
+
+    
 
     // --- ALGORITMO 2: Left-to-Right ---
     public static Punto LTR(Punto P_ingresado, BigInteger k) {

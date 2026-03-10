@@ -15,7 +15,7 @@ public class CurvaEliptica {
         @Override
         public String toString() {
             if (this.z.equals(BigInteger.ZERO)) return "Infinito (O)";
-            return "(" + x + ", " + y + ")";
+            return "(" + x + ", " + y + ", " + z + ")";
         }
     }
 
@@ -39,6 +39,7 @@ public class CurvaEliptica {
         System.out.println("\nResultados:");
         System.out.println("RTL: " + RTL(P, k));
         System.out.println("LTR: " + LTR(P, k));
+        sc.close();
     }
 
     // --- ALGORITMO 1: Right-to-Left ---
