@@ -35,8 +35,14 @@ int main(){
     cout << "-----------------------------------" << endl;
     cout<<"El punto ingresado es: ("<<Punto1.x<<","<<Punto1.y<<","<<Punto1.z<<")"<<endl;
     cout<<"El valor de k es: "<<k<< " el valor de P es: "<<P<<endl; 
-    cout<<"El valor de k en binario (Big-Endian): "<<k_bin<<endl;
-
+<<<<<<<<< Temporary merge branch 1
+    RTL(k_bin);
+    LTR(k_bin);
+=========
+    //Punto resultado = LTR(Punto1, k_bin);
+    Punto resultado = RTL(Punto1, k_bin);
+    
+>>>>>>>>> Temporary merge branch 2
     return 0;
 }
 void ValidarPunto(Punto &p) {
