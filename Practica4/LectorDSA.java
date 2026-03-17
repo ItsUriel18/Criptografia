@@ -5,7 +5,7 @@ import java.util.Scanner;
 public class LectorDSA {
     public static void main(String[] args) {
         // Nombre exacto del archivo según tu imagen
-        String nombreArchivo = "DSA data(Phone list).csv";
+        String nombreArchivo = "DSA_data.csv";
         
         try {
             File archivo = new File(nombreArchivo);
