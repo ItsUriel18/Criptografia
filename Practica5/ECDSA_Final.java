@@ -23,51 +23,11 @@ public class ECDSA_Final {
     }
 
     public static void main(String[] args) {
-        // --- PARTE A: TU PROPIA GENERACIÓN Y FIRMA ---
-        ejecutarProcesoPersonal();
-
-        // --- PARTE B: VALIDACIÓN DEL CSV DE LA CLASE ---
         validarArchivoCSV("ECDSA data (Phone list) (1).csv");
-    }
-
-    // --- 2. LÓGICA DE GENERACIÓN Y FIRMA PERSONAL ---
-    public static void ejecutarProcesoPersonal() {
-        // Datos de la Fuente 1
-        BigInteger p = new BigInteger("1009");
-        BigInteger a = new BigInteger("1006");
-        BigInteger q = new BigInteger("967");
-        Punto G = new Punto(new BigInteger("256"), new BigInteger("155"));
-
-        // Generar Clave Privada d (0 < d < q)
-        BigInteger d;
-        do { d = new BigInteger(q.bitLength(), random); } while (d.compareTo(BigInteger.ZERO) <= 0 || d.compareTo(q) >= 0);
-
-        // Clave Pública B = d * G
-        Punto B = RTL(G, d, p, a);
-
-        // Firmar un mensaje m
-        BigInteger m = new BigInteger("500");
-        BigInteger[] firma = generarFirma(m, q, G, d, p, a);
-
-        System.out.println("=== MI REPORTE PARA EXCEL ===");
-        System.out.println("Public Key B: (" + B.x + ", " + B.y + ")");
-        System.out.println("Firma (r, s): (" + firma[0] + ", " + firma[1] + ")");
-        System.out.println("------------------------------------------\n");
     }
 
     // --- 3. MÉTODOS CORE DE ECDSA ---
 
-    public static BigInteger[] generarFirma(BigInteger m, BigInteger q, Punto G, BigInteger d, BigInteger p, BigInteger a) {
-        BigInteger kE, r, s;
-        do {
-            do { kE = new BigInteger(q.bitLength(), random); } while (kE.compareTo(BigInteger.ZERO) <= 0 || kE.compareTo(q) >= 0);
-            Punto T = RTL(G, kE, p, a);
-            r = T.x.mod(q); // r = xT mod q
-        } while (r.equals(BigInteger.ZERO));
-
-        s = m.add(d.multiply(r)).multiply(kE.modInverse(q)).mod(q); // s = (m + dr)kE^-1 mod q
-        return new BigInteger[]{r, s};
-    }
 
     public static boolean verificarFirma(BigInteger m, BigInteger r, BigInteger s, BigInteger q, Punto G, Punto B, BigInteger p, BigInteger a) {
         if (r.compareTo(BigInteger.ZERO) <= 0 || r.compareTo(q) >= 0 || s.compareTo(BigInteger.ZERO) <= 0 || s.compareTo(q) >= 0) return false;

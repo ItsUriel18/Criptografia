@@ -136,29 +136,24 @@ public class ECDSA {
         BigInteger kE, r, s;
 
         do {
-            // (a) Elegir una clave secreta aleatoria 0 < KE < q
+            // Inciso a)
             do {
                 kE = new BigInteger(q.bitLength(), random);
             } while (kE.compareTo(BigInteger.ZERO) <= 0 || kE.compareTo(q) >= 0);
 
-            // (b) Calcular T = KE * G
-            // Nota: La multiplicación escalar usa el módulo p de la curva
+            // Inciso b)
             Punto T = RTL(G, kE, p, a);
 
-            // (c) Tomar r = xR (coordenada x del punto resultante)
-            // Se aplica mod q para asegurar que r esté en el rango del orden del grupo
+            // Inciso c)
             r = T.x.mod(q);
 
         } while (r.equals(BigInteger.ZERO)); // r no puede ser 0 en ECDSA
 
-        // (d) Calcular s = (m + dr) * KE^-1 mod q
-        // KE_inv es el inverso multiplicativo de kE módulo q
+        // Inciso d)
         BigInteger kE_inv = kE.modInverse(q);
-        
-        // s = (m + (d * r)) * kE_inv mod q
         s = m.add(d.multiply(r)).multiply(kE_inv).mod(q);
 
-        // (e) Retornar la firma (r, s)
+        // Inciso e)
         return new BigInteger[]{r, s};
     }
 
@@ -170,27 +165,26 @@ public class ECDSA {
         if (r.compareTo(BigInteger.ZERO) <= 0 || r.compareTo(q) >= 0) return false;
         if (s.compareTo(BigInteger.ZERO) <= 0 || s.compareTo(q) >= 0) return false;
 
-        // (a) Compute w = s^-1 mod q
+        // Inciso a) 
         BigInteger w = s.modInverse(q);
 
-        // (b) Compute u1 = wm mod q
+        // Inciso b) 
         BigInteger u1 = w.multiply(m).mod(q);
 
-        // (c) Compute u2 = wr mod q
+        // Inciso c) 
         BigInteger u2 = w.multiply(r).mod(q);
 
-        // (d) Compute P = u1*G + u2*B
-        // Nota: Las multiplicaciones y sumas de puntos se hacen con el módulo p de la curva
+        // Inciso d) Compute P = u1*G + u2*B
         Punto u1G = RTL(G, u1, p, a);
         Punto u2B = RTL(B, u2, p, a);
         Punto P = sumarPuntos(u1G, u2B, p, a);
 
         if (P.isInfinito) return false;
 
-        // (e) If xP == r mod q the signature is valid
+        // Inciso e) If xP == r mod q the signature is valid
         // Obtenemos la coordenada x del punto resultante y la comparamos con r
         BigInteger xP = P.x.mod(q);
-        
+    
         return xP.equals(r.mod(q));
     }
 }
