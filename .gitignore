@@ -3,6 +3,7 @@
 *.exe
 *.out
 *.o
+*.class
 
 #ignorar carpetas de compilacion
 

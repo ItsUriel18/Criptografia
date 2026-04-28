@@ -25,7 +25,7 @@ public class ECDSA_Final {
     }
 
     public static void validarArchivoCSV(String ruta) {
-        System.out.println("=== INICIANDO PROCESO MASIVO: VERIFICACIÓN Y CRACKING ===");
+        System.out.println("====================================");
         try (BufferedReader br = new BufferedReader(new FileReader(ruta))) {
             String linea;
             int n = 0;
@@ -68,8 +68,6 @@ public class ECDSA_Final {
             }
         } catch (Exception e) { System.out.println("Error: " + e.getMessage()); }
     }
-
-    // --- MÉTODOS DE CÁLCULO (RTL, Sumar, Doblar) ---
 
     public static BigInteger crackPrivateKey(Punto G, Punto B, BigInteger q, BigInteger p, BigInteger a) {
         for (BigInteger i = BigInteger.ONE; i.compareTo(q) < 0; i = i.add(BigInteger.ONE)) {

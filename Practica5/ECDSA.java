@@ -129,9 +129,7 @@ public class ECDSA {
 
     }
 
-    /**
-     * Genera la firma (r, s) para un mensaje m
-     */
+    // Genera la firma (r, s)
     public static BigInteger[] generarFirma(BigInteger m, BigInteger q, Punto G, BigInteger d, BigInteger p, BigInteger a) {
         BigInteger kE, r, s;
 
@@ -157,9 +155,8 @@ public class ECDSA {
         return new BigInteger[]{r, s};
     }
 
-    /**
-     * Sección 3: Verification signature
-     */
+    //Validación de la firma
+    
     public static boolean verificarFirma(BigInteger m, BigInteger r, BigInteger s, BigInteger q, Punto G, Punto B, BigInteger p, BigInteger a) {
         // Validaciones básicas de rango: 0 < r < q y 0 < s < q
         if (r.compareTo(BigInteger.ZERO) <= 0 || r.compareTo(q) >= 0) return false;
