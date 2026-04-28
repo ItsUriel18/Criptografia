@@ -1,1 +1,18 @@
-La criptografía es la base de la confianza en el mundo digital. ESCOM 2026.
+--- REPORTE DE INTEGRIDAD CRIPTOGRÁFICA ---
+Institución: Instituto Politécnico Nacional
+Unidad Académica: Escuela Superior de Cómputo (ESCOM)
+Materia: Criptografía
+Proyecto: Implementación de Firma Digital con RSA-CRT
+
+Descripción:
+Este archivo contiene un mensaje de prueba para verificar la autenticidad e 
+integridad mediante el algoritmo RSA utilizando el Teorema del Resto Chino (CRT). 
+Cualquier modificación en este texto, por mínima que sea (incluso un espacio 
+o un salto de línea), invalidará la firma digital generada.
+
+Fecha de la práctica: 28 de abril de 2026.
+Integrantes del equipo: Miguel, Juan y [Tu Nombre].
+
+"La confianza en los sistemas digitales no reside en el secreto del algoritmo, 
+sino en la robustez de las llaves y la integridad de los datos."
+------------------------------------------
