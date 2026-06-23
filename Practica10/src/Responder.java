@@ -47,7 +47,7 @@ public class Responder {
                         byte[] pkIBytes = new byte[pkILength];
                         in.readFully(pkIBytes);
                         pkI = KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(pkIBytes));
-                        System.out.println("[Operación] Llave del Iniciador recibida y almacenada.");
+                        System.out.println("[Operación] Llave del Iniciador recibida y almacenada.\n");
                         break;
                         
                     case 2:
@@ -72,7 +72,7 @@ public class Responder {
                         out.write(cR);
                         
                         kMac = SHARE.calcularHashSHA256(kI, kR);
-                        System.out.println("[Resultado] Clave compartida (k_mac) derivada: " + SHARE.bytesToHex(kMac));
+                        System.out.println("[Resultado] Clave compartida (k_mac) derivada: \n" + SHARE.bytesToHex(kMac));
                         break;
                         
                     default:
