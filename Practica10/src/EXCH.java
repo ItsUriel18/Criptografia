@@ -15,12 +15,12 @@ public class EXCH {
         return secreto;
     }
 
-    // Calcula el punto público (Escalar * Punto Generador G)
+    // Calcula el punto público
     public static Punto calcularPuntoPublico(BigInteger escalarSecreto) {
         return CurvaEliptica.RTL(CurvaEliptica.G, escalarSecreto);
     }
 
-    // Calcula el secreto compartido (Escalar Secreto Local * Punto Público Recibido)
+    // Calcula el secreto compartido
     public static Punto calcularSecretoCompartido(Punto puntoPublicoRecibido, BigInteger escalarSecretoLocal) {
         return CurvaEliptica.RTL(puntoPublicoRecibido, escalarSecretoLocal);
     }

@@ -23,6 +23,8 @@ public class Initiator {
             PublicKey pkR = null;
             byte[] kMac = null;
             Punto secretoCompartido = null;
+            Punto X = null; 
+            Punto Y = null; 
             
             boolean continuar = true;
             while (continuar) {
@@ -54,7 +56,7 @@ public class Initiator {
                         
                     case 2:
                         if (pkR == null) { System.out.println("[Alerta] Ejecuta el Paso 1 primero."); break; }
-                        System.out.println("=== FASE SHARE ===");
+                        System.out.println("===  FASE SHARE  ===");
                         
                         byte[] kI = SHARE.generarAleatorio(16);
                         System.out.println("[Operación] Valor k_I generado: " + SHARE.bytesToHex(kI));
@@ -81,7 +83,7 @@ public class Initiator {
                         break;
 
                     case 3:
-                        System.out.println("=== FASE EXCH (ECDH) ===");
+                        System.out.println("===  FASE EXCH  ===");
                         
                         // 1. Generar el secreto local 'x'
                         BigInteger xSecreto = EXCH.generarEscalarSecreto();
@@ -116,8 +118,37 @@ public class Initiator {
                         // 5. Calcular el secreto compartido final: x * Y
                         secretoCompartido = EXCH.calcularSecretoCompartido(Y, xSecreto);
                         System.out.println("[Resultado] Secreto compartido ECDH derivado: " + secretoCompartido.toString());
+                        System.out.println("\n");
                         break;
+
+                    case 4:
+                        if (secretoCompartido == null || kMac == null) {
+                            System.out.println("[Alerta] Debes ejecutar las fases anteriores primero.");
+                            break;
+                        }
+                        System.out.println("===  FASE AUTH  ===");
                         
+                        // 1. Concatenar (Y | X | ID_I | ID_R)
+                        byte[] datosI = AUTH.concatenarDatos(Y, X, ID_I, "Responder_01");
+                        
+                        // 2. Calcular mac_I y enviarlo
+                        byte[] macI = AUTH.calcularHMAC(datosI, kMac);
+                        out.writeInt(macI.length);
+                        out.write(macI);
+                        System.out.println("[Operación] mac_I generado y enviado al Respondedor.");
+                        
+                        // 3. Recibir mac_R del Respondedor
+                        int lenMacR = in.readInt();
+                        byte[] macR = new byte[lenMacR];
+                        in.readFully(macR);
+                        System.out.println("[Operación] mac_R recibido del Respondedor.");
+                        
+                        // 4. Derivar clave de sesión final k_sess
+                        byte[] kSessI = AUTH.derivarKSess(secretoCompartido.x);
+                        System.out.println("[Resultado FINAL] Clave de sesión (k_sess): " + SHARE.bytesToHex(kSessI));
+                        System.out.println("\n");
+                        break;
+                
                     default:
                         continuar = false;
                 }

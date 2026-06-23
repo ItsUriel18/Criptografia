@@ -31,7 +31,7 @@ public class SHARE {
         return cipher.doFinal(criptograma);
     }
 
-    // Calcula SHA-256 de la concatenación de dos arreglos de bytes (k_mac)
+    // Calcula SHA-256 (k_mac)
     public static byte[] calcularHashSHA256(byte[] k1, byte[] k2) throws Exception {
         MessageDigest md = MessageDigest.getInstance("SHA-256");
         md.update(k1);

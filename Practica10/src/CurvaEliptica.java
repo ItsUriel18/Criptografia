@@ -17,14 +17,14 @@ public class CurvaEliptica {
         BigInteger.ONE
     );
 
-    // --- ALGORITMO 1: Right-to-Left ---
+    // RTL
     public static Punto RTL(Punto P_ingresado, BigInteger k) {
         Punto Q = Punto.INFINITO;
         Punto P_aux = P_ingresado;
         int t = k.bitLength();
 
         for (int i = 0; i < t; i++) {
-            if (k.testBit(i)) { // Si el bit i-ésimo es 1
+            if (k.testBit(i)) {
                 Q = sumarPuntos(Q, P_aux);
             }
             P_aux = doblarPunto(P_aux);
@@ -32,7 +32,7 @@ public class CurvaEliptica {
         return Q;
     }
 
-    // --- SUMA DE PUNTOS ---
+    //SUMA DE PUNTOS
     public static Punto sumarPuntos(Punto P1, Punto P2) {
         if (P1.z.equals(BigInteger.ZERO)) return P2;
         if (P2.z.equals(BigInteger.ZERO)) return P1;
@@ -53,7 +53,7 @@ public class CurvaEliptica {
         return new Punto(x3, y3, BigInteger.ONE);
     }
 
-    // --- DOBLADO DE PUNTO ---
+    //DOBLADO DE PUNTO
     public static Punto doblarPunto(Punto P) {
         // Doblar el Infinito o un punto con y=0 da Infinito
         if (P.z.equals(BigInteger.ZERO) || P.y.equals(BigInteger.ZERO)) return Punto.INFINITO;
