@@ -32,7 +32,7 @@ public class CurvaEliptica {
         return Q;
     }
 
-    // --- SUMA DE PUNTOS AFÍN ---
+    // --- SUMA DE PUNTOS ---
     public static Punto sumarPuntos(Punto P1, Punto P2) {
         if (P1.z.equals(BigInteger.ZERO)) return P2;
         if (P2.z.equals(BigInteger.ZERO)) return P1;

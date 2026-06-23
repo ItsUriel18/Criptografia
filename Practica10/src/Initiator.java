@@ -1,167 +1,130 @@
 import java.io.*;
-import java.math.BigInteger;
 import java.net.*;
 import java.security.*;
 import java.security.spec.X509EncodedKeySpec;
 import javax.crypto.Cipher;
+import java.util.Scanner;
+import java.util.Base64;
 
 public class Initiator {
-    // Cambia "127.0.0.1" por la IP de la computadora Respondedor
-    private static final String HOST = "127.0.0.1";
+    private static final String HOST = "127.0.0.1"; // Cambiar a la IP del Respondedor
     private static final int PORT = 65432;
     private static final String ID_I = "Iniciador_01";
 
-    public static void main(String[] args) throws Exception {
-        System.out.println("--- INITIATOR ---");
+    public static void main(String[] args) {
+        System.out.println("========================================");
+        System.out.println("INICIADOR");
+        System.out.println("========================================");
         
-        System.out.println("Generando par de claves RSA...");
-        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
-        keyGen.initialize(512);
-        KeyPair pairI = keyGen.generateKeyPair();
-        
-        System.out.println("Conectando al Responder en " + HOST + ":" + PORT + "...");
         try (Socket socket = new Socket(HOST, PORT)) {
+            System.out.println("[Estado] Conectado al Respondedor exitosamente.\n");
             
             DataOutputStream out = new DataOutputStream(socket.getOutputStream());
             DataInputStream in = new DataInputStream(socket.getInputStream());
+            Scanner scanner = new Scanner(System.in);
             
-            // 0. Intercambio de Claves Públicas
-            // Recibir pk_R
-            int pkRLength = in.readInt();
-            byte[] pkRBytes = new byte[pkRLength];
-            in.readFully(pkRBytes);
-            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-            PublicKey pkR = keyFactory.generatePublic(new X509EncodedKeySpec(pkRBytes));
+            // Variables de estado (persisten durante el menú)
+            KeyPair pairI = null;
+            PublicKey pkR = null;
+            byte[] kMac = null;
             
-            // Enviar pk_I
-            byte[] pkIBytes = pairI.getPublic().getEncoded();
-            out.writeInt(pkIBytes.length);
-            out.write(pkIBytes);
-            System.out.println("Claves públicas intercambiadas exitosamente.\n");
-            
-            System.out.println("=== FASE SHARE ===");
-            
-            // 1. Generar k_I
-            System.out.println("Generando valor aleatorio k_I.");
-            byte[] kI = new byte[16];
-            new SecureRandom().nextBytes(kI);
-            
-            // 2. Concatenar (ID_I || k_I) y cifrar con pk_R
-            byte[] idBytes = ID_I.getBytes();
-            byte[] mensaje = new byte[idBytes.length + kI.length];
-            System.arraycopy(idBytes, 0, mensaje, 0, idBytes.length);
-            System.arraycopy(kI, 0, mensaje, idBytes.length, kI.length);
-            
-            Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
-            cipher.init(Cipher.ENCRYPT_MODE, pkR);
-            byte[] cI = cipher.doFinal(mensaje);
-            
-            // 3. Enviar c_I
-            out.writeInt(cI.length);
-            out.write(cI);
-            System.out.println("Enviando c_I al Respondedor.");
-            
-            // 4. Recibir c_R
-            int cRLength = in.readInt();
-            byte[] cR = new byte[cRLength];
-            in.readFully(cR);
-            System.out.println("Recibido c_R del Respondedor.");
-            
-            // 5. Descifrar c_R
-            cipher.init(Cipher.DECRYPT_MODE, pairI.getPrivate());
-            byte[] kR = cipher.doFinal(cR);
-            System.out.println("c_R descifrado, k_R obtenido.");
-            
-            // 6. Calcular k_mac = h(k_I | k_R)
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            md.update(kI);
-            md.update(kR);
-            byte[] kMac = md.digest();
-            System.out.println("Clave MAC generada (k_mac): " + bytesToHex(kMac));
-
-            System.out.println("\n=== FASE EXCH ===");
-            
-            // 1. Generar valor secreto x (debe ser 1 <= x < q)
-            // NOTA: Asegúrate de tener la variable q definida en tu clase CurvaEliptica, e.g., public static BigInteger q = new BigInteger("967");
-            BigInteger xSecreto;
-            do {
-                xSecreto = new BigInteger(CurvaEliptica.q.bitLength(), new SecureRandom());
-            } while (xSecreto.compareTo(BigInteger.ONE) < 0 || xSecreto.compareTo(CurvaEliptica.q) >= 0);
-            System.out.println("[Operación] Generado secreto 'x' (módulo q).");
-            
-            // 2. Calcular el punto público X = x * G
-            Punto X = CurvaEliptica.RTL(CurvaEliptica.G, xSecreto);
-            System.out.println("[Operación] Punto público X calculado: " + X.toString());
-            
-            // 3. Enviar las coordenadas de X al Respondedor
-            byte[] xCoordX = X.x.toByteArray();
-            byte[] yCoordX = X.y.toByteArray();
-            
-            out.writeInt(xCoordX.length);
-            out.write(xCoordX);
-            out.writeInt(yCoordX.length);
-            out.write(yCoordX);
-            System.out.println("[Operación] Punto X enviado al Respondedor.");
-            
-            // 4. Recibir el punto público Y del Respondedor
-            int lenXY = in.readInt();
-            byte[] xCoordYBytes = new byte[lenXY];
-            in.readFully(xCoordYBytes);
-            
-            int lenYY = in.readInt();
-            byte[] yCoordYBytes = new byte[lenYY];
-            in.readFully(yCoordYBytes);
-            
-            Punto Y = new Punto(new BigInteger(xCoordYBytes), new BigInteger(yCoordYBytes), BigInteger.ONE);
-            System.out.println("[Operación] Punto Y recibido: " + Y.toString());
-            
-            // 5. Calcular el secreto compartido (xyG)
-            Punto secretoCompartidoI = CurvaEliptica.RTL(Y, xSecreto);
-            System.out.println("[Resultado] Secreto compartido Diffie-Hellman calculado: " + secretoCompartidoI.toString());
-
-            System.out.println("\n=== FASE AUTH ===");
-            
-            // NOTA: Asegúrate de declarar el ID del respondedor arriba en tu clase:
-            // private static final String ID_R = "Responder_01";
-
-            // 1. Inicializar HMAC con la llave kMac (obtenida en la fase SHARE)
-            javax.crypto.spec.SecretKeySpec macKey = new javax.crypto.spec.SecretKeySpec(kMac, "HmacSHA256");
-            javax.crypto.Mac hmac = javax.crypto.Mac.getInstance("HmacSHA256");
-            hmac.init(macKey);
-            
-            // 2. Concatenar (Y | X | ID_I | ID_R)
-            ByteArrayOutputStream baosI = new ByteArrayOutputStream();
-            baosI.write(Y.x.toByteArray()); baosI.write(Y.y.toByteArray());
-            baosI.write(X.x.toByteArray()); baosI.write(X.y.toByteArray());
-            baosI.write(ID_I.getBytes());
-            baosI.write("Responder_01".getBytes()); // Sustituir por la constante ID_R
-            
-            // 3. Generar mac_I y enviarlo
-            byte[] macI = hmac.doFinal(baosI.toByteArray());
-            out.writeInt(macI.length);
-            out.write(macI);
-            System.out.println("[Operación] mac_I generado y enviado al Respondedor.");
-            
-            // 4. Recibir mac_R
-            int lenMacR = in.readInt();
-            byte[] macR = new byte[lenMacR];
-            in.readFully(macR);
-            System.out.println("[Operación] mac_R recibido del Respondedor.");
-            
-            // 5. Calcular clave de sesión final k_sess = h(coordenada x del secreto compartido)
-            MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
-            byte[] kSess = sha256.digest(secretoCompartidoI.x.toByteArray());
-            System.out.println("[Resultado FINAL] Clave de sesión (k_sess): " + bytesToHex(kSess));
-            System.out.println("--- PROTOCOLO SKEME COMPLETADO CON ÉXITO ---");
+            boolean continuar = true;
+            while (continuar) {
+                System.out.println("\n--- MENÚ PRINCIPAL ---");
+                System.out.println("[1] Generar llaves RSA e Intercambiar (Setup)");
+                System.out.println("[2] Ejecutar fase SHARE (Intercambio k_I y k_R)");
+                System.out.println("[3] Ejecutar fase EXCH (Pendiente)");
+                System.out.println("[4] Ejecutar fase AUTH (Pendiente)");
+                System.out.println("[5] Salir");
+                System.out.print("Seleccione un paso y presione Enter al mismo tiempo que su compañero: ");
+                
+                int opcion = scanner.nextInt();
+                System.out.println();
+                
+                switch (opcion) {
+                    case 1:
+                        System.out.println("=== PASO 0: SETUP RSA ===");
+                        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+                        keyGen.initialize(512);
+                        pairI = keyGen.generateKeyPair();
+                        
+                        byte[] pkIBytes = pairI.getPublic().getEncoded();
+                        System.out.println("[Operación] Mi llave pública generada (Base64): " + Base64.getEncoder().encodeToString(pkIBytes).substring(0, 50) + "...");
+                        
+                        out.writeInt(pkIBytes.length);
+                        out.write(pkIBytes);
+                        System.out.println("[Operación] Llave pública enviada. Esperando la del Respondedor...");
+                        
+                        int pkRLength = in.readInt();
+                        byte[] pkRBytes = new byte[pkRLength];
+                        in.readFully(pkRBytes);
+                        
+                        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+                        pkR = keyFactory.generatePublic(new X509EncodedKeySpec(pkRBytes));
+                        System.out.println("[Operación] Llave del Respondedor recibida y almacenada en memoria.");
+                        break;
+                        
+                    case 2:
+                        if (pkR == null) {
+                            System.out.println("[Alerta] Debes ejecutar el Paso 1 primero.");
+                            break;
+                        }
+                        System.out.println("=== FASE SHARE ===");
+                        byte[] kI = new byte[16];
+                        new SecureRandom().nextBytes(kI);
+                        System.out.println("[Operación] Valor k_I generado: " + bytesToHex(kI));
+                        
+                        byte[] idBytes = ID_I.getBytes();
+                        byte[] mensaje = new byte[idBytes.length + kI.length];
+                        System.arraycopy(idBytes, 0, mensaje, 0, idBytes.length);
+                        System.arraycopy(kI, 0, mensaje, idBytes.length, kI.length);
+                        
+                        Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+                        cipher.init(Cipher.ENCRYPT_MODE, pkR);
+                        byte[] cI = cipher.doFinal(mensaje);
+                        
+                        out.writeInt(cI.length);
+                        out.write(cI);
+                        System.out.println("[Operación] c_I enviado (" + cI.length + " bytes). Esperando c_R...");
+                        
+                        int cRLength = in.readInt();
+                        byte[] cR = new byte[cRLength];
+                        in.readFully(cR);
+                        System.out.println("[Operación] Recibido c_R del Respondedor.");
+                        
+                        cipher.init(Cipher.DECRYPT_MODE, pairI.getPrivate());
+                        byte[] kR = cipher.doFinal(cR);
+                        
+                        MessageDigest md = MessageDigest.getInstance("SHA-256");
+                        md.update(kI);
+                        md.update(kR);
+                        kMac = md.digest();
+                        System.out.println("[Resultado] Clave compartida (k_mac) derivada: " + bytesToHex(kMac));
+                        break;
+                        
+                    case 3:
+                        System.out.println("Fase EXCH: En construcción...");
+                        break;
+                    case 4:
+                        System.out.println("Fase AUTH: En construcción...");
+                        break;
+                    case 5:
+                        System.out.println("Cerrando conexión...");
+                        continuar = false;
+                        break;
+                    default:
+                        System.out.println("Opción no válida.");
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error en el Iniciador: " + e.getMessage());
+            e.printStackTrace();
         }
     }
     
-    // Método auxiliar para imprimir los bytes en Hexadecimal
     private static String bytesToHex(byte[] bytes) {
         StringBuilder sb = new StringBuilder();
-        for (byte b : bytes) {
-            sb.append(String.format("%02x", b));
-        }
+        for (byte b : bytes) { sb.append(String.format("%02x", b)); }
         return sb.toString();
     }
 }
