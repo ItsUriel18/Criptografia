@@ -11,7 +11,7 @@ public class Initiator {
     private static final String ID_I = "Iniciador_01";
 
     public static void main(String[] args) {
-        System.out.println(" ==== INITIATOR ==== \n");
+        System.out.println("\n ==== INITIATOR ==== \n");
         
         try (Socket socket = new Socket(HOST, PORT)) {
             DataOutputStream out = new DataOutputStream(socket.getOutputStream());
@@ -26,15 +26,16 @@ public class Initiator {
             while (continuar) {
                 System.out.println("[1] Generar llaves RSA");
                 System.out.println("[2] Fase SHARE");
+                System.out.println("[3] Fase EXCH");
+                System.out.println("[4] Fase AUTH");
                 System.out.println("\n");
-                System.out.println(": ");
                 
                 int opcion = scanner.nextInt();
                 System.out.println();
                 
                 switch (opcion) {
                     case 1:
-                        System.out.println("=== PASO 0: SETUP RSA ===");
+                        System.out.println("===  RSA  ===");
                         pairI = SHARE.generarLlavesRSA(512);
                         byte[] pkIBytes = pairI.getPublic().getEncoded();
                         

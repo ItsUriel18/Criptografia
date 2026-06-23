@@ -10,7 +10,7 @@ public class Responder {
     private static final int PORT = 65432;
 
     public static void main(String[] args) {
-        System.out.println(" ==== RESPONDER ==== \n");
+        System.out.println("\n ==== RESPONDER ==== \n");
         
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
             Socket socket = serverSocket.accept();
@@ -26,15 +26,16 @@ public class Responder {
             while (continuar) {
                 System.out.println("[1] Generar llaves RSA");
                 System.out.println("[2] Fase SHARE");
+                System.out.println("[3] Fase EXCH");
+                System.out.println("[4] Fase AUTH");
                 System.out.println("\n");
-                System.out.println(": ");
                 
                 int opcion = scanner.nextInt();
                 System.out.println();
                 
                 switch (opcion) {
                     case 1:
-                        System.out.println("=== PASO 0: SETUP RSA ===");
+                        System.out.println("===  RSA  ===");
                         pairR = SHARE.generarLlavesRSA(512);
                         byte[] pkRBytes = pairR.getPublic().getEncoded();
                         
