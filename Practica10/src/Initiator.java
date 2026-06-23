@@ -90,7 +90,7 @@ public class Initiator {
                         System.out.println("[Operación] Secreto local 'x' generado de forma segura.");
                         
                         // 2. Calcular el punto público X = x * G
-                        Punto X = EXCH.calcularPuntoPublico(xSecreto);
+                        X = EXCH.calcularPuntoPublico(xSecreto);
                         System.out.println("[Operación] Mi punto público X calculado: " + X.toString());
                         
                         // 3. Enviar las coordenadas de X al Respondedor por el socket
@@ -112,7 +112,7 @@ public class Initiator {
                         byte[] yyBytes = new byte[lenYy];
                         in.readFully(yyBytes);
                         
-                        Punto Y = new Punto(new BigInteger(yxBytes), new BigInteger(yyBytes), BigInteger.ONE);
+                        Y = new Punto(new BigInteger(yxBytes), new BigInteger(yyBytes), BigInteger.ONE);
                         System.out.println("[Operación] Punto público Y recibido con éxito.");
                         
                         // 5. Calcular el secreto compartido final: x * Y

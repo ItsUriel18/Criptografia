@@ -93,7 +93,7 @@ public class Responder {
                         byte[] xyBytes = new byte[lenXy];
                         in.readFully(xyBytes);
                         
-                        Punto X = new Punto(new BigInteger(xxBytes), new BigInteger(xyBytes), BigInteger.ONE);
+                        X = new Punto(new BigInteger(xxBytes), new BigInteger(xyBytes), BigInteger.ONE);
                         System.out.println("[Operación] Punto público X recibido con éxito.");
                         
                         // 2. Generar el secreto local 'y'
@@ -101,7 +101,7 @@ public class Responder {
                         System.out.println("[Operación] Secreto local 'y' generado de forma segura.");
                         
                         // 3. Calcular el punto público Y = y * G
-                        Punto Y = EXCH.calcularPuntoPublico(ySecreto);
+                        Y = EXCH.calcularPuntoPublico(ySecreto);
                         System.out.println("[Operación] Mi punto público Y calculado: " + Y.toString());
                         
                         // 4. Enviar las coordenadas de Y al Iniciador por el socket
