@@ -11,9 +11,7 @@ public class Initiator {
     private static final String ID_I = "Iniciador_01";
 
     public static void main(String[] args) {
-        System.out.println("========================================");
-        System.out.println("   SIMULADOR SKEME - INICIADOR");
-        System.out.println("========================================");
+        System.out.println(" ==== INITIATOR ==== \n");
         
         try (Socket socket = new Socket(HOST, PORT)) {
             DataOutputStream out = new DataOutputStream(socket.getOutputStream());
@@ -28,6 +26,8 @@ public class Initiator {
             while (continuar) {
                 System.out.println("[1] Generar llaves RSA");
                 System.out.println("[2] Fase SHARE");
+                System.out.println("\n");
+                System.out.println(": ");
                 
                 int opcion = scanner.nextInt();
                 System.out.println();

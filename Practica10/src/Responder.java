@@ -10,9 +10,7 @@ public class Responder {
     private static final int PORT = 65432;
 
     public static void main(String[] args) {
-        System.out.println("========================================");
-        System.out.println("   SIMULADOR SKEME - RESPONDEDOR");
-        System.out.println("========================================");
+        System.out.println(" ==== RESPONDER ==== \n");
         
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
             Socket socket = serverSocket.accept();
@@ -28,6 +26,8 @@ public class Responder {
             while (continuar) {
                 System.out.println("[1] Generar llaves RSA");
                 System.out.println("[2] Fase SHARE");
+                System.out.println("\n");
+                System.out.println(": ");
                 
                 int opcion = scanner.nextInt();
                 System.out.println();
