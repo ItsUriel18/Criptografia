@@ -1,16 +1,16 @@
-import java.security.*;
-import javax.crypto.Cipher;
+import java.security.*; //Generadores de llaves, generación de números aleatorios y funciones hash.
+import javax.crypto.Cipher; //Procesos de cifrado y descifrado
 
 public class SHARE {
 
-    // Genera un par de claves RSA (Setup)
+    // Generar llaves RSA
     public static KeyPair generarLlavesRSA(int size) throws Exception {
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
         keyGen.initialize(size);
         return keyGen.generateKeyPair();
     }
 
-    // Genera un arreglo de bytes aleatorios (Para k_I y k_R)
+    // Generar k_I y k_R
     public static byte[] generarAleatorio(int numBytes) {
         byte[] aleatorio = new byte[numBytes];
         new SecureRandom().nextBytes(aleatorio);

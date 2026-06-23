@@ -1,4 +1,5 @@
 import java.io.*;
+import java.math.BigInteger;
 import java.net.*;
 import java.security.*;
 import java.security.spec.X509EncodedKeySpec;
@@ -21,6 +22,7 @@ public class Responder {
             KeyPair pairR = null;
             PublicKey pkI = null;
             byte[] kMac = null;
+            Punto secretoCompartido = null;
             
             boolean continuar = true;
             while (continuar) {
@@ -72,8 +74,49 @@ public class Responder {
                         out.write(cR);
                         
                         kMac = SHARE.calcularHashSHA256(kI, kR);
-                        System.out.println("[Resultado] Clave compartida (k_mac) derivada: \n" + SHARE.bytesToHex(kMac));
+                        System.out.println("[Resultado] Clave compartida (k_mac) derivada: " + SHARE.bytesToHex(kMac));
+                        System.out.println("\n");
                         break;
+
+                    case 3:
+                        System.out.println("=== FASE EXCH (ECDH) ===");
+                        
+                        // 1. Recibir las coordenadas del punto X del Iniciador
+                        System.out.println("[Operación] Esperando el punto X del Iniciador...");
+                        int lenXx = in.readInt();
+                        byte[] xxBytes = new byte[lenXx];
+                        in.readFully(xxBytes);
+                        
+                        int lenXy = in.readInt();
+                        byte[] xyBytes = new byte[lenXy];
+                        in.readFully(xyBytes);
+                        
+                        Punto X = new Punto(new BigInteger(xxBytes), new BigInteger(xyBytes), BigInteger.ONE);
+                        System.out.println("[Operación] Punto público X recibido con éxito.");
+                        
+                        // 2. Generar el secreto local 'y'
+                        BigInteger ySecreto = EXCH.generarEscalarSecreto();
+                        System.out.println("[Operación] Secreto local 'y' generado de forma segura.");
+                        
+                        // 3. Calcular el punto público Y = y * G
+                        Punto Y = EXCH.calcularPuntoPublico(ySecreto);
+                        System.out.println("[Operación] Mi punto público Y calculado: " + Y.toString());
+                        
+                        // 4. Enviar las coordenadas de Y al Iniciador por el socket
+                        byte[] xCoordY = Y.x.toByteArray();
+                        byte[] yCoordY = Y.y.toByteArray();
+                        
+                        out.writeInt(xCoordY.length);
+                        out.write(xCoordY);
+                        out.writeInt(yCoordY.length);
+                        out.write(yCoordY);
+                        System.out.println("[Operación] Punto Y enviado al Iniciador.");
+                        
+                        // 5. Calcular el secreto compartido final: y * X
+                        secretoCompartido = EXCH.calcularSecretoCompartido(X, ySecreto);
+                        System.out.println("[Resultado] Secreto compartido ECDH derivado: " + secretoCompartido.toString());
+                        break;
+                    
                         
                     default:
                         continuar = false;
